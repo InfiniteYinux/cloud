@@ -1,0 +1,90 @@
+<%
+var nameMap = (config.language && config.language.indexOf('zh-CN') >= 0) ? 'cn' : 'en';
+var titleText = (config.language && config.language.indexOf('zh-CN') >= 0) ? '所有标签' : 'PostTag Title';
+
+var colorArr = ['#F9EBEA', '#F5EEF8', '#D5F5E3', '#E8F8F5', '#FEF9E7',
+    '#F8F9F9', '#82E0AA', '#D7BDE2', '#A3E4D7', '#85C1E9', '#F8C471', '#F9E79F', '#FFF'];
+var colorCount = colorArr.length;
+var hashCode = function (str) {
+    if (!str && str.length === 0) {
+        return 0;
+    }
+
+    var hash = 0;
+    for (var i = 0, len = str.length; i < len; i++) {
+        hash = ((hash << 5) - hash) + str.charCodeAt(i);
+        hash |= 0;
+    }
+    return hash;
+};
+var i = 0;
+var isTag = is_tag();
+%>
+
+<%- partial('_pre') %>
+<% page.comments = false; %>
+<div class='l_main<%- page.sidebar == false ? ' no_sidebar' : '' %>'>
+  <% if (site.posts && site.posts.length > 0) { %>
+    <% if (page.layout == 'tag') { %>
+      <section class="post-list <%- theme.layout.multiple_columns ? 'multiple-columns' : '' %>">
+        <div class='post-wrapper'>
+          <!-- <%- partial('_widget/tag-cloud') %> -->
+          <article id="archive-page" class="post article white-box <%- theme.style.shadow.card ? 'card-shadow' : '' %> <%- theme.style.blur && theme.style.blur.widget ? 'widget-blur' : '' %>">
+            <section class="archive">
+              <div class="archive-item archive-year mark">
+                <h2><%- page.title %></h2>
+              </div>
+              <!-- 闪烁之狐标签云 -->
+              <div id="tags" class="container chip-container">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="tag-title center-align">
+                        </div>
+                        <div class="tag-chips">
+                            <% site.tags.map(function(tag) { %>
+                            <%
+                                i++;
+                                var color = i >= colorCount ? colorArr[Math.abs(hashCode(tag.name) % colorCount)]
+                                        : colorArr[i - 1];
+                            %>
+                            <a href="<%- url_for(tag.path) %>" title="<%- tag.name %>: <%- tag.length %>">
+                                <span class="chip center-align waves-effect waves-light
+                                        <% if (isTag && tag.name == page.tag) { %> chip-active <% } else { %> chip-default <% } %>"
+                                        data-tagname="<%- tag.name %>" style="background-color: <%- color %>;"><%- tag.name %>
+                                    <span class="tag-length"><%- tag.length %></span>
+                                </span>
+                            </a>
+                            <% }); %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- volantis默认标签云 -->
+            <!-- 
+            <div class="archive-item all-tags">
+              <% let tc = theme.widget.tagcloud; %>
+              <%- tagcloud(site.tags, {
+                  min_font: tc.min_font,
+                  max_font: tc.max_font,
+                  color: tc.color,
+                  start_color: tc.start_color,
+                  end_color: tc.end_color,
+              }) %>
+            </div>
+            <br>
+            <%- page.content %>
+            -->
+              <%- partial('_widget/category-radar') %>
+            </section>
+            
+          </article>
+          
+        </div>
+      </section>
+    <% } else { %>
+      <%- partial('_partial/archive') %>
+    <% } %>
+  <% } %>
+</div>
+<%- partial('_partial/side') %>
+<%- partial('_partial/footer', null, {cache: !config.relative_link}) %>
